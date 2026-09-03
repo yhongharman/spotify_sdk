@@ -62,6 +62,13 @@ class SpotifySdk {
   /// Logs the user out and disconnects the app from the users spotify account.
   static Future<bool> disconnect() => SpotifySdkPlatform.instance.disconnect();
 
+  /// The access token the native App Remote currently holds, read without
+  /// starting an authorization flow. `null` when nothing is stored. On iOS,
+  /// pass it back to [connectToSpotifyRemote] to reconnect without switching
+  /// to the Spotify app.
+  static Future<String?> getStoredAccessToken() =>
+      SpotifySdkPlatform.instance.getStoredAccessToken();
+
   /// Gets the current [CrossfadeState].
   static Future<CrossfadeState?> getCrossFadeState() =>
       SpotifySdkPlatform.instance.getCrossFadeState();

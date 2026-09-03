@@ -332,6 +332,10 @@ class SpotifySdkPlugin extends SpotifySdkPlatform {
   }
 
   @override
+  Future<String?> getStoredAccessToken() async =>
+      _authSession.currentToken?.accessToken;
+
+  @override
   Future<bool> disconnect() async {
     await _sdkLoader.ensureSdkLoaded();
     log('Disconnecting from Spotify...');

@@ -10,6 +10,10 @@ class RemoteManager: NSObject {
     // rebuilds.
     private(set) var appRemoteClientID: String?
     private(set) var appRemoteRedirectURL: URL?
+    // Set when the live remote's last connection attempt failed. A remote that
+    // reported a failure is not reused: the next connect rebuilds, which is how
+    // upstream recovered a wedged remote before reuse existed.
+    private(set) var lastConnectionAttemptFailed = false
 
     // One delegate for the manager's lifetime: a reconnect, or a rebuilt remote,
     // keeps feeding the same Dart sinks instead of orphaning them.
@@ -31,11 +35,15 @@ class RemoteManager: NSObject {
         super.init()
     }
 
-    /// The remote to connect with: the live one when it was built for this
-    /// client + redirect, otherwise a fresh one (the stale one is disconnected).
-    func appRemote(clientID: String, redirectURL: URL) -> SPTAppRemote {
-        if let existing = appRemote,
+    /// The remote to connect with. Reused only when `reuse` is set, it was built
+    /// for this client + redirect, and its last attempt did not fail; otherwise
+    /// a fresh one (the stale one is disconnected). Token connects pass `reuse`;
+    /// the authorize path never does, so a re-authorize always starts clean and
+    /// doubles as the manual reset for a remote that wedged without reporting.
+    func appRemote(clientID: String, redirectURL: URL, reuse: Bool) -> SPTAppRemote {
+        if reuse, let existing = appRemote,
            RemoteManager.canReuse(clientID: appRemoteClientID, redirectURL: appRemoteRedirectURL,
+                                  lastAttemptFailed: lastConnectionAttemptFailed,
                                   forClientID: clientID, redirectURL: redirectURL) {
             return existing
         }
@@ -47,11 +55,20 @@ class RemoteManager: NSObject {
         appRemote = fresh
         appRemoteClientID = clientID
         appRemoteRedirectURL = redirectURL
+        lastConnectionAttemptFailed = false
         return fresh
     }
 
-    static func canReuse(clientID: String?, redirectURL: URL?,
+    func markConnectionAttemptFailed() {
+        lastConnectionAttemptFailed = true
+    }
+
+    func markConnectionEstablished() {
+        lastConnectionAttemptFailed = false
+    }
+
+    static func canReuse(clientID: String?, redirectURL: URL?, lastAttemptFailed: Bool,
                          forClientID requestedClientID: String, redirectURL requestedRedirectURL: URL) -> Bool {
-        return clientID == requestedClientID && redirectURL == requestedRedirectURL
+        return !lastAttemptFailed && clientID == requestedClientID && redirectURL == requestedRedirectURL
     }
 }

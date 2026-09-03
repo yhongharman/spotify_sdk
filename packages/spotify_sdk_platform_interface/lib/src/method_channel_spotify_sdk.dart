@@ -95,6 +95,10 @@ class MethodChannelSpotifySdk extends SpotifySdkPlatform {
   }
 
   @override
+  Future<String?> getStoredAccessToken() =>
+      _gateway.invoke<String>(MethodNames.getStoredAccessToken);
+
+  @override
   Future<CrossfadeState?> getCrossFadeState() =>
       _gateway.invokeJson<CrossfadeState>(
         MethodNames.getCrossfadeState,

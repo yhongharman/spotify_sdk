@@ -68,12 +68,19 @@ class AuthHandler: NSObject {
         result(true)
     }
 
+    /// The token the live remote holds (set by the authorize redirect or a
+    /// prior connect). Read without waking Spotify, so a caller can reconnect
+    /// silently by passing it back to connectToSpotifyRemote.
+    public func getStoredAccessToken(result: @escaping FlutterResult) {
+        result(remoteManager.appRemote?.connectionParameters.accessToken)
+    }
+
     private func connectToSpotifyInternal(clientId: String, redirectURL: String, accessToken: String? = nil, spotifyUri: String = "", asRadio: Bool? = false, additionalScopes: String? = nil) throws {
         guard let redirectURL = URL(string: redirectURL) else {
             throw SpotifyError.redirectURLInvalid
         }
 
-        let appRemote = remoteManager.appRemote(clientID: clientId, redirectURL: redirectURL)
+        let appRemote = remoteManager.appRemote(clientID: clientId, redirectURL: redirectURL, reuse: accessToken != nil)
         appRemote.delegate = remoteManager.connectionStatusHandler
         appRemote.connectionParameters.accessToken = accessToken
 

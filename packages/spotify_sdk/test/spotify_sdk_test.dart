@@ -58,6 +58,12 @@ class MockSpotifySdkPlatform extends SpotifySdkPlatform
   }
 
   @override
+  Future<String?> getStoredAccessToken() async {
+    calls.add('getStoredAccessToken');
+    return 'stored_token';
+  }
+
+  @override
   Future<CrossfadeState?> getCrossFadeState() async {
     calls.add('getCrossFadeState');
     return CrossfadeState(5000, isEnabled: true);
@@ -284,6 +290,12 @@ void main() {
       final result = await SpotifySdk.disconnect();
       expect(result, true);
       expect(mockPlatform.calls, contains('disconnect'));
+    });
+
+    test('getStoredAccessToken delegates to platform', () async {
+      final token = await SpotifySdk.getStoredAccessToken();
+      expect(token, 'stored_token');
+      expect(mockPlatform.calls, contains('getStoredAccessToken'));
     });
 
     test('getCrossFadeState delegates to platform', () async {

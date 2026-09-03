@@ -104,6 +104,17 @@ abstract class SpotifySdkPlatform extends PlatformInterface {
     throw UnimplementedError('disconnect() has not been implemented.');
   }
 
+  /// The access token the native App Remote currently holds, read without
+  /// starting an authorization flow. `null` when there is no connection or the
+  /// platform keeps no reusable token. On iOS this is the token the authorize
+  /// redirect delivered; pass it back to [connectToSpotifyRemote] to reconnect
+  /// without switching to the Spotify app.
+  Future<String?> getStoredAccessToken() {
+    throw UnimplementedError(
+      'getStoredAccessToken() has not been implemented.',
+    );
+  }
+
   /// Gets the current [CrossfadeState].
   Future<CrossfadeState?> getCrossFadeState() {
     throw UnimplementedError('getCrossFadeState() has not been implemented.');

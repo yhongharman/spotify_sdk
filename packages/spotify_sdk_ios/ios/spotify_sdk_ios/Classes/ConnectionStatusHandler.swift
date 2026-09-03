@@ -7,6 +7,7 @@ class ConnectionStatusHandler: StatusHandler, SPTAppRemoteDelegate {
     var connectionResult: FlutterResult?
     
     func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
+        RemoteManager.shared.markConnectionEstablished()
         RemoteManager.shared.capabilitiesHandler?.setAppRemote(appRemote)
         RemoteManager.shared.playerStateHandler?.subscribe()
         RemoteManager.shared.userStatusHandler?.updateConnectionStatus(isConnected: true)
@@ -20,6 +21,7 @@ class ConnectionStatusHandler: StatusHandler, SPTAppRemoteDelegate {
     }
 
     func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
+        RemoteManager.shared.markConnectionAttemptFailed()
         RemoteManager.shared.userStatusHandler?.updateConnectionStatus(isConnected: false)
         defer {
             connectionResult = nil

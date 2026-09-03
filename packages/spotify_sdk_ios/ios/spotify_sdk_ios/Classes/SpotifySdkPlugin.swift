@@ -53,6 +53,8 @@ public class SpotifySdkPlugin: NSObject, FlutterPlugin {
             authHandler.isSpotifyInstalled(result: result)
         case SpotifySdkConstants.methodDisconnectFromSpotify:
             authHandler.disconnect(result: result)
+        case SpotifySdkConstants.methodGetStoredAccessToken:
+            authHandler.getStoredAccessToken(result: result)
 
         // Playback & Controls
         case SpotifySdkConstants.methodGetPlayerState:

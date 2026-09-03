@@ -15,6 +15,7 @@ object SpotifySdkConstants {
     const val METHOD_GET_SWAP_TOKEN = "getSwapToken"
     const val METHOD_IS_SPOTIFY_INSTALLED = "isSpotifyInstalled"
     const val METHOD_DISCONNECT_FROM_SPOTIFY = "disconnectFromSpotify"
+    const val METHOD_GET_STORED_ACCESS_TOKEN = "getStoredAccessToken"
 
     // Methods - Playback & Controls
     const val METHOD_SWITCH_TO_LOCAL_DEVICE = "switchToLocalDevice"

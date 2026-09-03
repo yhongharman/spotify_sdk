@@ -30,6 +30,8 @@ void main() {
                 return true;
               case 'disconnectFromSpotify':
                 return true;
+              case 'getStoredAccessToken':
+                return 'mock_stored_token';
               case 'getCrossfadeState':
                 return jsonEncode({
                   'isEnabled': true,
@@ -127,6 +129,16 @@ void main() {
       expect(result, true);
       expect(log.first.method, 'isSpotifyInstalled');
     });
+
+    test(
+      'getStoredAccessToken reads the held token without an auth flow',
+      () async {
+        final token = await platform.getStoredAccessToken();
+
+        expect(token, 'mock_stored_token');
+        expect(log.single.method, 'getStoredAccessToken');
+      },
+    );
 
     test('disconnect returns confirmation boolean', () async {
       final result = await platform.disconnect();

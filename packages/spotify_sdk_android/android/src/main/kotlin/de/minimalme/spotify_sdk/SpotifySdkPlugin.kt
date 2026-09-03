@@ -95,6 +95,7 @@ class SpotifySdkPlugin : MethodCallHandler, FlutterPlugin, ActivityAware, Plugin
             )
             SpotifySdkConstants.METHOD_IS_SPOTIFY_INSTALLED -> authHandler.isSpotifyInstalled(result)
             SpotifySdkConstants.METHOD_DISCONNECT_FROM_SPOTIFY -> authHandler.disconnectFromSpotify(result)
+            SpotifySdkConstants.METHOD_GET_STORED_ACCESS_TOKEN -> authHandler.getStoredAccessToken(result)
 
             // Playback & Controls
             SpotifySdkConstants.METHOD_SWITCH_TO_LOCAL_DEVICE -> playerHandler.switchToLocalDevice(result)

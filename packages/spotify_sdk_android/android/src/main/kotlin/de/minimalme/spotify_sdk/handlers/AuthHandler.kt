@@ -99,6 +99,17 @@ class AuthHandler(private val remoteManager: RemoteManager) {
         AuthorizationClient.openLoginActivity(activity, requestCodeAuthentication, request)
     }
 
+    // Android's App Remote connects through the Auth SDK and holds no token the
+
+    // caller could reuse, so there is nothing to return here.
+
+    fun getStoredAccessToken(result: Result) {
+
+        result.success(null)
+
+    }
+
+
     fun isSpotifyInstalled(result: Result) {
         val context = remoteManager.applicationContext
         if (context == null) {
