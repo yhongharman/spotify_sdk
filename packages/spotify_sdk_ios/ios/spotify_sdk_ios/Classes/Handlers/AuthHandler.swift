@@ -112,10 +112,16 @@ class AuthHandler: NSObject {
                 appRemote.connect()
             }
         } else {
+            let stateBefore = UIApplication.shared.applicationState.rawValue
             appRemote.authorizeAndPlayURI(spotifyUri, asRadio: asRadio ?? false, additionalScopes: scopes) { success in
                 if (!success) {
-                    self.remoteManager.connectionStatusHandler?.connectionResult?(FlutterError(code: "spotifyNotInstalled", message: "Spotify app is not installed", details: nil))
-                    self.remoteManager.connectionStatusHandler?.tokenResult?(FlutterError(code: "spotifyNotInstalled", message: "Spotify app is not installed", details: nil))
+                    // The SDK answers false for "not installed" and for a refused URL
+                    // open alike; the app state and scheme check tell them apart.
+                    let canOpen = UIApplication.shared.canOpenURL(URL(string: "spotify-action://")!)
+                    let details = "applicationState before=\(stateBefore) now=\(UIApplication.shared.applicationState.rawValue) canOpen(spotify-action)=\(canOpen) uri=\(spotifyUri)"
+                    NSLog("spotify_sdk_ios: authorizeAndPlayURI refused — \(details)")
+                    self.remoteManager.connectionStatusHandler?.connectionResult?(FlutterError(code: "spotifyNotInstalled", message: "Spotify app is not installed", details: details))
+                    self.remoteManager.connectionStatusHandler?.tokenResult?(FlutterError(code: "spotifyNotInstalled", message: "Spotify app is not installed", details: details))
                     self.remoteManager.connectionStatusHandler?.connectionResult = nil
                     self.remoteManager.connectionStatusHandler?.tokenResult = nil
                 }
