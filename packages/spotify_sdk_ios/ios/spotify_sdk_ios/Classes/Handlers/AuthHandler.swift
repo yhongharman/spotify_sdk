@@ -73,20 +73,16 @@ class AuthHandler: NSObject {
             throw SpotifyError.redirectURLInvalid
         }
 
-        let configuration = SPTConfiguration(clientID: clientId, redirectURL: redirectURL)
-        let appRemote = SPTAppRemote(configuration: configuration, logLevel: .none)
-        remoteManager.appRemote = appRemote
-
+        let appRemote = remoteManager.appRemote(clientID: clientId, redirectURL: redirectURL)
         appRemote.delegate = remoteManager.connectionStatusHandler
         appRemote.connectionParameters.accessToken = accessToken
 
-        let playerDelegate = PlayerDelegate()
         if remoteManager.playerStateHandler == nil {
-            remoteManager.playerStateHandler = PlayerStateHandler(appRemote: appRemote, playerDelegate: playerDelegate)
+            remoteManager.playerStateHandler = PlayerStateHandler(remoteManager: remoteManager)
             RemoteManager.playerStateChannel?.setStreamHandler(remoteManager.playerStateHandler)
         }
         if remoteManager.playerContextHandler == nil {
-            remoteManager.playerContextHandler = PlayerContextHandler(appRemote: appRemote, playerDelegate: playerDelegate)
+            remoteManager.playerContextHandler = PlayerContextHandler(remoteManager: remoteManager)
             RemoteManager.playerContextChannel?.setStreamHandler(remoteManager.playerContextHandler)
         }
         if remoteManager.capabilitiesHandler == nil {
@@ -101,7 +97,13 @@ class AuthHandler: NSObject {
         }
 
         if accessToken != nil {
-            appRemote.connect()
+            if appRemote.isConnected {
+                // The reused remote is already live; a second connect() would not
+                // fire the delegate again and the Dart result would hang.
+                remoteManager.connectionStatusHandler?.appRemoteDidEstablishConnection(appRemote)
+            } else {
+                appRemote.connect()
+            }
         } else {
             appRemote.authorizeAndPlayURI(spotifyUri, asRadio: asRadio ?? false, additionalScopes: scopes) { success in
                 if (!success) {

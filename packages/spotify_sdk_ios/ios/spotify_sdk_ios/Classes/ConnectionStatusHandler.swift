@@ -8,6 +8,7 @@ class ConnectionStatusHandler: StatusHandler, SPTAppRemoteDelegate {
     
     func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
         RemoteManager.shared.capabilitiesHandler?.setAppRemote(appRemote)
+        RemoteManager.shared.playerStateHandler?.subscribe()
         RemoteManager.shared.userStatusHandler?.updateConnectionStatus(isConnected: true)
 
         connectionResult?(true)
