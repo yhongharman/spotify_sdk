@@ -10,6 +10,10 @@ public class SpotifySdkPlugin: NSObject, FlutterPlugin {
     private lazy var libraryHandler = LibraryHandler(remoteManager: remoteManager)
     private lazy var imageHandler = ImageHandler(remoteManager: remoteManager)
 
+    /// A connect deferred from the authorize redirect until the app is active again.
+    private var deferredConnectObserver: NSObjectProtocol?
+    private static let deferredConnectFallback: TimeInterval = 5
+
     public static func register(with registrar: FlutterPluginRegistrar) {
         guard RemoteManager.playerStateChannel == nil else {
             return
@@ -141,7 +145,46 @@ public class SpotifySdkPlugin: NSObject, FlutterPlugin {
         }
 
         appRemote.connectionParameters.accessToken = token
+        connectOnceActive(appRemote)
+    }
+
+    /// The redirect from Spotify lands while this app is still inactive. A
+    /// connect() issued there has to wake Spotify from the background, which
+    /// iOS refuses (SPTAppRemoteBackgroundWakeupFailedError, -1000), so the
+    /// authorize that just succeeded reads as a failed connection. Spotify's
+    /// own sample connects from didBecomeActive instead; the notification is
+    /// used rather than a delegate callback so scene-based hosts behave the
+    /// same. The fallback bounds the wait so the Dart call cannot hang if the
+    /// app never becomes active.
+    private func connectOnceActive(_ appRemote: SPTAppRemote) {
+        if UIApplication.shared.applicationState == .active {
+            appRemote.connect()
+            return
+        }
+        cancelDeferredConnect()
+        let observer = NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            self?.runDeferredConnect(appRemote)
+        }
+        deferredConnectObserver = observer
+        DispatchQueue.main.asyncAfter(deadline: .now() + SpotifySdkPlugin.deferredConnectFallback) { [weak self] in
+            guard let self, self.deferredConnectObserver === observer else { return }
+            self.runDeferredConnect(appRemote)
+        }
+    }
+
+    private func runDeferredConnect(_ appRemote: SPTAppRemote) {
+        guard deferredConnectObserver != nil else { return }
+        cancelDeferredConnect()
         appRemote.connect()
+    }
+
+    private func cancelDeferredConnect() {
+        if let observer = deferredConnectObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        deferredConnectObserver = nil
     }
 }
 
