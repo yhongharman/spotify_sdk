@@ -51,7 +51,14 @@ class RemoteManager: NSObject {
             stale.disconnect()
         }
         let configuration = SPTConfiguration(clientID: clientID, redirectURL: redirectURL)
-        let fresh = SPTAppRemote(configuration: configuration, logLevel: .none)
+        // Debug builds surface the SDK's own connection log on the device
+        // console; it is the only view into why a connect is refused.
+        #if DEBUG
+        let logLevel: SPTAppRemoteLogLevel = .debug
+        #else
+        let logLevel: SPTAppRemoteLogLevel = .none
+        #endif
+        let fresh = SPTAppRemote(configuration: configuration, logLevel: logLevel)
         appRemote = fresh
         appRemoteClientID = clientID
         appRemoteRedirectURL = redirectURL

@@ -28,11 +28,14 @@ class ConnectionStatusHandler: StatusHandler, SPTAppRemoteDelegate {
             tokenResult = nil
         }
 
-        if error != nil {
-            // report spotify remote error to plugin
-            eventSink?("{\"connected\": false, \"errorCode\": \"\(error!._code)\", \"errorDetails\": \"\(error!.localizedDescription)\"}")
-            connectionResult?(FlutterError(code: String(error!._code), message: error!.localizedDescription, details: nil))
-            tokenResult?(FlutterError(code: String(error!._code), message: error!.localizedDescription, details: nil))
+        if let error = error {
+            // The SDK's localizedDescription is generic ("Connection attempt
+            // failed."); the NSError domain and userInfo carry the actual cause.
+            let nsError = error as NSError
+            let details = "\(nsError.domain) \(nsError.code): \(nsError.localizedDescription) \(nsError.userInfo)"
+            eventSink?("{\"connected\": false, \"errorCode\": \"\(nsError.code)\", \"errorDetails\": \"\(details.replacingOccurrences(of: "\"", with: "'"))\"}")
+            connectionResult?(FlutterError(code: String(nsError.code), message: nsError.localizedDescription, details: details))
+            tokenResult?(FlutterError(code: String(nsError.code), message: nsError.localizedDescription, details: details))
         } else {
             // report disconnection to plugin
             eventSink?("{\"connected\": false}")
