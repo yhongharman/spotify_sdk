@@ -69,8 +69,10 @@ class AuthHandler: NSObject {
     }
 
     /// The token the live remote holds (set by the authorize redirect or a
-    /// prior connect). Read without waking Spotify, so a caller can reconnect
-    /// silently by passing it back to connectToSpotifyRemote.
+    /// prior connect), read without waking Spotify. getAccessToken cannot do
+    /// this: it always authorizes, so it opens the Spotify app even while a
+    /// connection is live. Passing this back to connectToSpotifyRemote only
+    /// reconnects while Spotify is still serving — see the README.
     public func getStoredAccessToken(result: @escaping FlutterResult) {
         result(remoteManager.appRemote?.connectionParameters.accessToken)
     }
