@@ -63,9 +63,12 @@ class SpotifySdk {
   static Future<bool> disconnect() => SpotifySdkPlatform.instance.disconnect();
 
   /// The access token the native App Remote currently holds, read without
-  /// starting an authorization flow. `null` when nothing is stored. On iOS,
-  /// pass it back to [connectToSpotifyRemote] to reconnect without switching
-  /// to the Spotify app.
+  /// starting an authorization flow. `null` when nothing is stored.
+  ///
+  /// On iOS it can be passed back to [connectToSpotifyRemote], but a token
+  /// connect only succeeds while the Spotify app is still serving: once
+  /// Spotify has been suspended it refuses the transport and the caller has
+  /// to fall back to the authorize flow. See the README.
   static Future<String?> getStoredAccessToken() =>
       SpotifySdkPlatform.instance.getStoredAccessToken();
 

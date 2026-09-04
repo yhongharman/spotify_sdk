@@ -106,9 +106,13 @@ abstract class SpotifySdkPlatform extends PlatformInterface {
 
   /// The access token the native App Remote currently holds, read without
   /// starting an authorization flow. `null` when there is no connection or the
-  /// platform keeps no reusable token. On iOS this is the token the authorize
-  /// redirect delivered; pass it back to [connectToSpotifyRemote] to reconnect
-  /// without switching to the Spotify app.
+  /// platform keeps no reusable token.
+  ///
+  /// On iOS this is the token the authorize redirect delivered. It can be
+  /// passed back to [connectToSpotifyRemote], but a token connect only
+  /// succeeds while the Spotify app is still serving: once Spotify has been
+  /// suspended it refuses the transport and the caller has to fall back to
+  /// the authorize flow. See the README.
   Future<String?> getStoredAccessToken() {
     throw UnimplementedError(
       'getStoredAccessToken() has not been implemented.',
