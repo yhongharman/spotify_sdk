@@ -22,6 +22,7 @@ class ConnectionStatusHandler: StatusHandler, SPTAppRemoteDelegate {
 
     func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
         RemoteManager.shared.markConnectionAttemptFailed()
+        RemoteManager.shared.playerStateHandler?.resetSubscription()
         RemoteManager.shared.userStatusHandler?.updateConnectionStatus(isConnected: false)
         defer {
             connectionResult = nil
@@ -45,6 +46,7 @@ class ConnectionStatusHandler: StatusHandler, SPTAppRemoteDelegate {
     }
 
     func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
+        RemoteManager.shared.playerStateHandler?.resetSubscription()
         RemoteManager.shared.userStatusHandler?.updateConnectionStatus(isConnected: false)
         if error != nil {
             // report spotify remote error to plugin
