@@ -22,10 +22,7 @@ class PlayerHandler: NSObject {
     }
 
     public func getPlayerState(result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         appRemote.playerAPI?.getPlayerState({ (playerState, error) in
             guard error == nil else {
                 result(SpotifyErrorMapper.makeError(code: "PlayerAPI Error", message: error?.localizedDescription ?? ""))
@@ -40,10 +37,7 @@ class PlayerHandler: NSObject {
     }
 
     public func play(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         guard let swiftArguments = call.arguments as? [String: Any],
               let uri = swiftArguments[SpotifySdkConstants.paramSpotifyUri] as? String else {
             result(SpotifyErrorMapper.argumentError("No URI was specified"))
@@ -54,26 +48,17 @@ class PlayerHandler: NSObject {
     }
 
     public func pause(result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         appRemote.playerAPI?.pause(defaultPlayCallback(result))
     }
 
     public func resume(result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         appRemote.playerAPI?.resume(defaultPlayCallback(result))
     }
 
     public func queueTrack(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         guard let swiftArguments = call.arguments as? [String: Any],
               let uri = swiftArguments[SpotifySdkConstants.paramSpotifyUri] as? String else {
             result(SpotifyErrorMapper.argumentError("No URI was specified"))
@@ -83,18 +68,12 @@ class PlayerHandler: NSObject {
     }
 
     public func skipNext(result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         appRemote.playerAPI?.skip(toNext: defaultPlayCallback(result))
     }
 
     public func skipPrevious(result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         appRemote.playerAPI?.skip(toPrevious: { (_, error) in
             if let error = error {
                 result(SpotifyErrorMapper.makeError(code: "PlayerAPI Error", message: error.localizedDescription))
@@ -105,10 +84,7 @@ class PlayerHandler: NSObject {
     }
 
     public func skipToIndex(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         guard let swiftArguments = call.arguments as? [String: Any],
               let uri = swiftArguments[SpotifySdkConstants.paramSpotifyUri] as? String else {
             result(SpotifyErrorMapper.argumentError("No URI was specified"))
@@ -130,10 +106,7 @@ class PlayerHandler: NSObject {
     }
 
     public func seekTo(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         guard let swiftArguments = call.arguments as? [String: Any],
               let position = swiftArguments[SpotifySdkConstants.paramPositionedMilliseconds] as? Int else {
             result(SpotifyErrorMapper.argumentError("No position was specified"))
@@ -143,10 +116,7 @@ class PlayerHandler: NSObject {
     }
 
     public func seekToRelativePosition(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         guard let swiftArguments = call.arguments as? [String: Any],
               let relativeMilliseconds = swiftArguments[SpotifySdkConstants.paramRelativeMilliseconds] as? Int else {
             result(SpotifyErrorMapper.argumentError("No relative position was specified"))
@@ -167,10 +137,7 @@ class PlayerHandler: NSObject {
     }
 
     public func getCrossfadeState(result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         appRemote.playerAPI?.getCrossfadeState({ (crossfadeState, error) in
             guard error == nil else {
                 result(SpotifyErrorMapper.makeError(code: "PlayerAPI Error", message: error?.localizedDescription ?? ""))
@@ -185,10 +152,7 @@ class PlayerHandler: NSObject {
     }
 
     public func setShuffle(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         guard let swiftArguments = call.arguments as? [String: Any],
               let shuffle = swiftArguments[SpotifySdkConstants.paramShuffle] as? Bool else {
             result(SpotifyErrorMapper.argumentError("No ShuffleMode was specified"))
@@ -198,10 +162,7 @@ class PlayerHandler: NSObject {
     }
 
     public func toggleShuffle(result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         appRemote.playerAPI?.getPlayerState({ (playerState, error) in
             guard error == nil else {
                 result(SpotifyErrorMapper.makeError(code: "PlayerAPI Error", message: error?.localizedDescription ?? ""))
@@ -217,10 +178,7 @@ class PlayerHandler: NSObject {
     }
 
     public func setRepeatMode(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         guard let swiftArguments = call.arguments as? [String: Any],
               let repeatModeIndex = swiftArguments[SpotifySdkConstants.paramRepeatMode] as? UInt,
               let repeatMode = SPTAppRemotePlaybackOptionsRepeatMode(rawValue: repeatModeIndex) else {
@@ -231,10 +189,7 @@ class PlayerHandler: NSObject {
     }
 
     public func toggleRepeat(result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         appRemote.playerAPI?.getPlayerState({ (playerState, error) in
             guard error == nil else {
                 result(SpotifyErrorMapper.makeError(code: "PlayerAPI Error", message: error?.localizedDescription ?? ""))

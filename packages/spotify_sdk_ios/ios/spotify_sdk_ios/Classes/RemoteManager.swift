@@ -66,6 +66,18 @@ class RemoteManager: NSObject {
         return fresh
     }
 
+    /// The remote to issue a command on, or nil after answering `result` with
+    /// the not-connected error. The SDK's `playerAPI`, `userAPI`, and `imageAPI`
+    /// are nil on a disconnected remote, so an optional-chained call there
+    /// silently never invokes its callback and the Dart future hangs forever.
+    func connectedRemote(_ result: FlutterResult) -> SPTAppRemote? {
+        guard let appRemote = appRemote, appRemote.isConnected else {
+            result(SpotifyErrorMapper.notConnectedError())
+            return nil
+        }
+        return appRemote
+    }
+
     func markConnectionAttemptFailed() {
         lastConnectionAttemptFailed = true
     }

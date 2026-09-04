@@ -22,10 +22,7 @@ class LibraryHandler: NSObject {
     }
 
     public func addToLibrary(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         guard let swiftArguments = call.arguments as? [String: Any],
               let uri = swiftArguments[SpotifySdkConstants.paramSpotifyUri] as? String else {
             result(SpotifyErrorMapper.argumentError("No URI was specified"))
@@ -35,10 +32,7 @@ class LibraryHandler: NSObject {
     }
 
     public func removeFromLibrary(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         guard let swiftArguments = call.arguments as? [String: Any],
               let uri = swiftArguments[SpotifySdkConstants.paramSpotifyUri] as? String else {
             result(SpotifyErrorMapper.argumentError("No URI was specified"))
@@ -48,10 +42,7 @@ class LibraryHandler: NSObject {
     }
 
     public func getCapabilities(result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         appRemote.userAPI?.fetchCapabilities(callback: { (capabilitiesResult, error) in
             guard error == nil else {
                 result(SpotifyErrorMapper.makeError(code: "getCapabilitiesError", message: error?.localizedDescription ?? ""))
@@ -66,10 +57,7 @@ class LibraryHandler: NSObject {
     }
 
     public func getLibraryState(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         guard let swiftArguments = call.arguments as? [String: Any],
               let uri = swiftArguments[SpotifySdkConstants.paramSpotifyUri] as? String else {
             result(SpotifyErrorMapper.argumentError("No URI was specified"))

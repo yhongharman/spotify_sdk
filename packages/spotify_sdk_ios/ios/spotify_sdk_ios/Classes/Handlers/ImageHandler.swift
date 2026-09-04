@@ -14,10 +14,7 @@ class ImageHandler: NSObject {
     }
 
     public func getImage(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let appRemote = remoteManager.appRemote else {
-            result(SpotifyErrorMapper.notConnectedError())
-            return
-        }
+        guard let appRemote = remoteManager.connectedRemote(result) else { return }
         guard let swiftArguments = call.arguments as? [String: Any],
               let paramImageUri = swiftArguments[SpotifySdkConstants.paramImageUri] as? String,
               let paramImageDimension = swiftArguments[SpotifySdkConstants.paramImageDimension] as? Int else {
