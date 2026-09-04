@@ -117,7 +117,9 @@ final accessToken = await SpotifySdk.getAccessToken(clientId: "", redirectUrl: "
 
 On Web you can use the token that you get from `getAccessToken(...)` and then pass it to `connectToSpotifyRemote(...)`. This will avoid having to send user through two Spotify OAuth prompts. You should not persist this token, nor supply a different token, because the refresh token is only set interally by `getAccessToken` or `connectToSpotifyRemote`.
 
-On iOS you can store the token that you get from `getAccessToken(...)` and then pass it to `connectToSpotifyRemote(...)` during the next session. This will avoid having to switch to the Spotify app for establishing the connection. This library does not handle storing the token. It is up to you to persist it wherever you see fit. After a connection is established you can read the token the App Remote is holding with `getStoredAccessToken()` — without switching to the Spotify app — and pass it to the next `connectToSpotifyRemote(...)`. Keep in mind that this feature is currently quite buggy in the native iOS SDK and has many side effects like random disconnections. Proceed with caution.
+On iOS you can store the token that you get from `getAccessToken(...)` and then pass it to `connectToSpotifyRemote(...)` during the next session. This can avoid having to switch to the Spotify app while the Spotify app is still serving the connection. This library does not handle storing the token. It is up to you to persist it wherever you see fit. After a connection is established you can read the token the App Remote is holding with `getStoredAccessToken()`, without switching to the Spotify app.
+
+Note that on current versions of the Spotify iOS app, passing a stored token back to `connectToSpotifyRemote(...)` does **not** reliably avoid the app switch. Once Spotify has been suspended it refuses the connection at the transport (`NSPOSIXErrorDomain` 61 "Connection refused", wrapped as `-1000`), and only a connect riding `authorizeAndPlayURI` succeeds — see [spotify/ios-sdk#443](https://github.com/spotify/ios-sdk/issues/443) and the SDK 3.0.0 removal of `checkIfSpotifyAppIsActive`. Treat the stored token as an optimization for the case where Spotify is still serving, and expect to fall back to the authorize flow. Keep in mind that this feature is currently quite buggy in the native iOS SDK and has many side effects like random disconnections. Proceed with caution.
 
 On iOS Spotify starts playing music when attempting connection. This is a default behavior and there is no official way to prevent this with the currently supported authentication flows. You have the option to pass a Spotify URI upon connection or set it to a blank string to play the last played song. There is an undocumented workaround if you don't want music to start playing which is to pass an invalid Spotify URI instead. This is not officially supported by the Spotify SDK or this library and it can fail or stop working at any time!
 
@@ -175,7 +177,7 @@ try {
 | getSwapToken | Gets an OAuth Authorization Code for custom token swap backend servers | ✔ | ✔ | ✔ |
 | isSpotifyInstalled | Checks if the Spotify application is installed on the device | ✔ | ✔ | ✔ |
 | disconnect | Disconnects the app connection | ✔ |  ✔ | ✔ |
-| getStoredAccessToken | Reads the token the native App Remote currently holds, without starting an auth flow (`null` when none). On iOS, pass it back to connectToSpotifyRemote to reconnect without switching to the Spotify app | ✔ |  ✔ | ✔ |
+| getStoredAccessToken | Reads the token the native App Remote currently holds, without starting an auth flow (`null` when none) | ✔ |  ✔ | ✔ |
 | subscribeConnectionStatus | Subscribes to the current connection status. | ✔ |  ✔ | ✔ |
 
 #### Player Api
