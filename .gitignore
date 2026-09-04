@@ -50,6 +50,11 @@ build/
 /.vs/spotify_sdk/v16/.suo
 
 SpotifyiOS.framework
+# ...except the vendored xcframework the plugin ships. The podspec's
+# prepare_command clones spotify/ios-sdk, but CocoaPods does not run it for a
+# path pod, which is how a Flutter plugin is always consumed — so a git
+# dependency on this repo builds only if the slices are tracked here.
+!packages/spotify_sdk_ios/ios/spotify_sdk_ios/ios-sdk/SpotifyiOS.xcframework/**
 **/doc/api/
 /ios/ios-sdk/
 
